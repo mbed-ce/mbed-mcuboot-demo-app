@@ -1,41 +1,41 @@
-# Copyright (c) 2021 ARM Limited. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
+cmake_minimum_required(VERSION 3.19)
+cmake_policy(VERSION 3.19)
 
-# Mbed-MCUboot Demo Application
+set(MBED_APP_JSON_PATH mbed_app.json5)
 
-cmake_minimum_required(VERSION 3.19.0 FATAL_ERROR)
+include(mbed-os/tools/cmake/app.cmake)
 
-set(MBED_PATH ${CMAKE_CURRENT_SOURCE_DIR}/mbed-os CACHE INTERNAL "")
-set(MCUBOOT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/mcuboot CACHE INTERNAL "")
-set(MBED_CONFIG_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "")
-set(APP_TARGET application)
+# Make sure that the build system generates both bin and hex files, regardless of
+# target settings.
+set(MBED_OUTPUT_EXT "" CACHE STRING "" FORCE)
 
-include(${MBED_PATH}/tools/cmake/app.cmake)
+add_subdirectory(mbed-os)
 
-project(${APP_TARGET})
+project(mbed-mcuboot-demo-app)
 
-add_subdirectory(${MBED_PATH})
-add_subdirectory(${MCUBOOT_PATH}/boot/bootutil/)
-add_subdirectory(${MCUBOOT_PATH}/boot/mbed/)  # Mbed-MCUboot Port
+# Compile mcuboot sources
+add_subdirectory(mcuboot/boot/bootutil)
+add_subdirectory(mcuboot/boot/mbed)
 
-add_executable(${APP_TARGET})
+add_executable(SimpleApp SimpleApp.cpp secondary_bd.cpp)
+target_link_libraries(SimpleApp
+	mbed-baremetal
+	mbed-storage
+	mbed-mcuboot)
+mbed_set_post_build(SimpleApp)
 
-target_sources(${APP_TARGET}
-    PUBLIC
-        main.cpp
-)
+add_executable(UpdaterApp UpdaterApp.cpp secondary_bd.cpp)
+target_link_libraries(UpdaterApp
+	mbed-os
+	mbed-storage
+	mbed-mcuboot)
+mbed_set_post_build(UpdaterApp)
 
-target_link_libraries(${APP_TARGET}
-    PUBLIC
-        bootutil
-        mbed-mcuboot
-        mbed-storage
-        mbed-os
-)
+# Time for a bit of CMake magic: we take the bin file for SimpleApp, then link it into
+# UpdaterApp as block of constant data.  The name in code is based on the filename passed
+# here to the linker.
+# See here for more details on this: https://gareus.org/wiki/embedding_resources_in_executables
+target_link_options(UpdaterApp PRIVATE -Wl,-b,binary,$<TARGET_FILE_BASE_NAME:SimpleApp>.bin  -Wl,-b,elf32-littlearm)
+add_dependencies(UpdaterApp SimpleApp) # Ensure SimpleApp gets built before UpdaterApp
 
-mbed_set_post_build(${APP_TARGET})
-
-option(VERBOSE_BUILD "Have a verbose build process")
-if(VERBOSE_BUILD)
-    set(CMAKE_VERBOSE_MAKEFILE ON)
-endif()
+mbed_finalize_build()

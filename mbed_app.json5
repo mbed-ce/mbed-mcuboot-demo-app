@@ -1,0 +1,78 @@
+{
+    "config": {
+        "demo-button": {
+            "macro_name": "DEMO_BUTTON",
+            "required": true,
+            "value": "BUTTON1"
+        },
+        "demo-button-active-low": {
+            "help": "true if the button state is low when pressed, high when released",
+            "macro_name": "DEMO_BUTTON_ACTIVE_LOW",
+            "required": false
+        },
+    },
+    "target_overrides": {
+        "*": {
+            "mcuboot.bootloader-build": 0,
+            "target.c_lib": "small",
+            "mcuboot.log-level": "MCUBOOT_LOG_LEVEL_DEBUG",
+            "mbed-trace.enable": true
+        },
+//         "NRF52840_DK": {
+//             "demo-button-active-low": true,
+//             "mbed_app_start": "0x21000",
+//             "target.mbed_app_size": "0xBE000",
+//             "mcuboot.primary-slot-address": "0x20000",
+//             "mcuboot.slot-size": "0xC0000",
+//             "mcuboot.scratch-address": "0xE0000",
+//             "mcuboot.scratch-size": "0x20000",
+//             "mcuboot.max-img-sectors": "0x180",
+//             "mcuboot.read-granularity": 4,
+//             "qspif.QSPI_MIN_PROG_SIZE": 4
+//         },
+//         "EP_AGORA": {
+//             "demo-button-active-low": true,
+//             "mbed_app_start": "0x21000",
+//             "target.mbed_app_size": "0xBE000",
+//             "mcuboot.primary-slot-address": "0x20000",
+//             "mcuboot.slot-size": "0xC0000",
+//             "mcuboot.scratch-address": "0xE0000",
+//             "mcuboot.scratch-size": "0x20000",
+//             "mcuboot.max-img-sectors": "0x180",
+//             "mcuboot.read-granularity": 4,
+//             "qspif.QSPI_MIN_PROG_SIZE": 4
+//         },
+//         "DISCO_L475VG_IOT01A": {
+//             "demo-button-active-low": true,
+//             "mbed_app_start": "0x8021000",
+//             "target.mbed_app_size": "0xBE000",
+//             "mcuboot.primary-slot-address": "0x8020000",
+//             "mcuboot.slot-size": "0xC0000",
+//             "mcuboot.scratch-address": "0x80E0000",
+//             "mcuboot.scratch-size": "0x20000",
+//             "mcuboot.max-img-sectors": "0x180"
+//         }
+
+        "K64F": {
+            // Configure application to start after the end of the application header
+            "target.memory_bank_config": {
+                "IROM1": {
+                    "start": 0x21000, // bootloader size + application header size
+                    "size": 0xDE000 // flash size - bootloader size - application header size - application trailer size
+                }
+            },
+
+            // On K64F we store the secondary slot in external memory, not internal.
+            // So, the primary slot can take up most of flash.
+            "mcuboot.primary-slot-address": "0x20000",
+            "mcuboot.slot-size": "0xC0000",
+
+            // Store the scratch space at the end of flash
+            "mcuboot.scratch-address": "0xE0000",
+            "mcuboot.scratch-size": "0x20000",
+
+            "mcuboot.max-img-sectors": "0x180",
+            "mcuboot.read-granularity": 512 // External SD card used as block device, this is its read size.
+        }
+    }
+}

@@ -2,7 +2,7 @@
 
 This example project shows how to configure an Mbed-OS application to be booted by an mcuboot bootloader.
 
-All information for this example has been moved to the combined README in the bootloader repository, [`mbed-mcuboot-demo`](https://github.com/AGlass0fMilk/mbed-mcuboot-demo).
+All information for this example has been moved to the combined README in the bootloader repository, [`mbed-mcuboot-bootloader`](https://github.com/mbed-ce/mbed-mcuboot-bootloader).
 
 ### License and contributions
 
