@@ -25,9 +25,9 @@
 
 // SimpleApp.bin gets loaded into ram between these addresses.
 // See CMakeLists.txt for details on how this is done.
-extern "C" uint8_t _binary_SimpleApp_bin_start;
-extern "C" uint8_t _binary_SimpleApp_bin_end;
-const size_t SimpleApp_bin_length = &_binary_SimpleApp_bin_end - &_binary_SimpleApp_bin_start;
+extern "C" uint8_t _binary_SimpleApp_update_image_bin_start;
+extern "C" uint8_t _binary_SimpleApp_update_image_bin_end;
+const size_t SimpleApp_update_image_bin_length = &_binary_SimpleApp_update_image_bin_end - &_binary_SimpleApp_update_image_bin_start;
 
 int main()
 {
@@ -36,6 +36,16 @@ int main()
     mbed_trace_include_filters_set("UpdaterApp,MCUb,BL");
 
     DigitalIn btn(DEMO_BUTTON);
+
+    // Use a buffered block device to allow arbitrary length writes to the underlying BD
+    BlockDevice *secondary_bd = get_secondary_bd();
+    BufferedBlockDevice bufferedSecBD(secondary_bd);
+    int ret = bufferedSecBD.init();
+    if (ret == 0) {
+        tr_info("Secondary BlockDevice inited");
+    } else {
+        tr_error("Cannot init secondary BlockDevice: %d", ret);
+    }
 
     // Erase secondary slot
     // On the first boot, the secondary BlockDevice needs to be clean
@@ -46,17 +56,6 @@ int main()
     while(!DEMO_BUTTON_IS_PRESSED) {
         ThisThread::sleep_for(10ms);
     }
-
-    BlockDevice *secondary_bd = get_secondary_bd();
-    int ret = secondary_bd->init();
-    if (ret == 0) {
-        tr_info("Secondary BlockDevice inited");
-    } else {
-        tr_error("Cannot init secondary BlockDevice: %d", ret);
-    }
-
-    // Use a buffered block device to allow arbitrary length writes to the underlying BD
-    BufferedBlockDevice bufferedSecBD(secondary_bd);
 
     tr_info("Erasing secondary BlockDevice...");
     ret = bufferedSecBD.erase(0, bufferedSecBD.size());
@@ -73,7 +72,7 @@ int main()
     }
 
     // Copy the update image from internal flash to secondary BlockDevice
-    bufferedSecBD.program(&_binary_SimpleApp_bin_start, 0, SimpleApp_bin_length);
+    bufferedSecBD.program(&_binary_SimpleApp_update_image_bin_start, 0, SimpleApp_update_image_bin_length);
 
     // Activate the image in the secondary BlockDevice
     tr_info("> Image copied to secondary BlockDevice, press button to activate");

@@ -25,9 +25,16 @@ jobs:
         run: |
           apt-get update
           apt-get install -y python3-venv
-          
+
+      - name: Generate transient key pair
+        run: |
+          python3 -m pip install --user --upgrade pyopenssl # Work around runtime error
+          python3 -m pip install --user -r mcuboot/scripts/requirements.txt
+          python3 -m pip install --user mcuboot/scripts
+          $HOME/.local/bin/imgtool keygen -k signing-keys.pem -t rsa-2048
+
       - name: Build project for ${{ matrix.mbed_target }}
         run: |
             mkdir build && cd build
-            cmake .. -GNinja -DMBED_TARGET=${{ matrix.mbed_target }}
+            cmake .. -GNinja -DMBED_TARGET=${{ matrix.mbed_target }} -DMCUBOOT_SIGNING_KEY=signing-keys.pem
             ninja

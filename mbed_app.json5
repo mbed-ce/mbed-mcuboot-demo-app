@@ -62,6 +62,8 @@
                 }
             },
 
+            "demo-button-active-low": true,
+
             // On K64F we store the secondary slot in external memory, not internal.
             // So, the primary slot can take up most of flash.
             "mcuboot.primary-slot-address": "0x20000",

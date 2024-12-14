@@ -37,7 +37,7 @@ mbed::BlockDevice* get_secondary_bd(void) {
 
     // In this case, our flash is much larger than a single image so
     // slice it into the size of an image slot
-    static mbed::SlicingBlockDevice sliced_bd(default_bd, 0x0, MCUBOOT_SLOT_SIZE);
-    return &sliced_bd;
+    //static mbed::SlicingBlockDevice sliced_bd(default_bd, 0x0, MCUBOOT_SLOT_SIZE);
+    return default_bd;
 }
 #endif
