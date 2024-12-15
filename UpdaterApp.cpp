@@ -37,10 +37,8 @@ int main()
 
     DigitalIn btn(DEMO_BUTTON);
 
-    // Use a buffered block device to allow arbitrary length writes to the underlying BD
     BlockDevice *secondary_bd = get_secondary_bd();
-    BufferedBlockDevice bufferedSecBD(secondary_bd);
-    int ret = bufferedSecBD.init();
+    int ret = secondary_bd->init();
     if (ret == 0) {
         tr_info("Secondary BlockDevice inited");
     } else {
@@ -58,11 +56,21 @@ int main()
     }
 
     tr_info("Erasing secondary BlockDevice...");
-    ret = bufferedSecBD.erase(0, bufferedSecBD.size());
+    ret = secondary_bd->erase(0, secondary_bd->size());
     if (ret == 0) {
         tr_info("Secondary BlockDevice erased");
     } else {
         tr_error("Cannot erase secondary BlockDevice: %d", ret);
+    }
+
+    // Workaround: for block devices such as MicroSD cards where there is no fixed erase value,
+    // mcuboot will think that the "magic" region on the secondary BD, which it uses to store
+    // state info, is corrupt instead of simply not written yet.
+    // To fix this, we need to actually fill the last 40 bytes with 0xFFs.
+    if(secondary_bd->get_erase_value() == -1)
+    {
+        const std::vector<uint8_t> writeBuffer(40, 0xFF);
+        secondary_bd->program(writeBuffer.data(), secondary_bd->size() - 40, 40);
     }
 
     tr_info("> Press button to copy update image to secondary BlockDevice");
@@ -72,7 +80,14 @@ int main()
     }
 
     // Copy the update image from internal flash to secondary BlockDevice
-    bufferedSecBD.program(&_binary_SimpleApp_update_image_bin_start, 0, SimpleApp_update_image_bin_length);
+    secondary_bd->program(&_binary_SimpleApp_update_image_bin_start, 0, SimpleApp_update_image_bin_length);
+
+    ret = secondary_bd->deinit();
+    if (ret == 0) {
+        tr_info("Secondary BlockDevice deinited");
+    } else {
+        tr_error("Cannot deinit secondary BlockDevice: %d", ret);
+    }
 
     // Activate the image in the secondary BlockDevice
     tr_info("> Image copied to secondary BlockDevice, press button to activate");
