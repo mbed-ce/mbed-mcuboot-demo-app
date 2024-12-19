@@ -11,12 +11,20 @@
             "required": false
         },
     },
+
+    "macros": [
+        "MBEDTLS_CIPHER_MODE_CTR"
+    ],
+
     "target_overrides": {
         "*": {
             "mcuboot.bootloader-build": 0,
             "target.c_lib": "small",
             "mcuboot.log-level": "MCUBOOT_LOG_LEVEL_DEBUG",
-            "mbed-trace.enable": true
+            "mbed-trace.enable": true,
+
+            // Change to true to enable encryption of the image
+            "mcuboot.encrypt-rsa": false
         },
 //         "NRF52840_DK": {
 //             "demo-button-active-low": true,

@@ -37,6 +37,9 @@ int main()
             tr_info("Regular boot");
             break;
 
+        // Note: Older mcuboot versions appear to use SWAP_TYPE_REVERT.
+        // Newer ones seem to use SWAP_TYPE_TEST.
+        case BOOT_SWAP_TYPE_TEST:
         case BOOT_SWAP_TYPE_REVERT:
             // After MCUboot has swapped a (non-permanent) update image
             // into the primary slot, it defaults to reverting the image on the NEXT boot.
@@ -69,7 +72,6 @@ int main()
             // should never reach the application...
         case BOOT_SWAP_TYPE_FAIL:   // Unable to boot due to invalid image
         case BOOT_SWAP_TYPE_PERM:   // Permanent update requested (when signing the image) and to be performed
-        case BOOT_SWAP_TYPE_TEST:   // Revertable update requested and to be performed
         case BOOT_SWAP_TYPE_PANIC:  // Unrecoverable error
         default:
             tr_error("Unexpected swap type: %d", swap_type);
