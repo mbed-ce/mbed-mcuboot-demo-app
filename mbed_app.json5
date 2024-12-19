@@ -23,8 +23,8 @@
             "mcuboot.log-level": "MCUBOOT_LOG_LEVEL_DEBUG",
             "mbed-trace.enable": true,
 
-            // Change to true to enable encryption of the image
-            "mcuboot.encrypt-rsa": false
+            // Uncomment to enable encryption of the image
+            // "mcuboot.encrypt-rsa": true
         },
 //         "NRF52840_DK": {
 //             "demo-button-active-low": true,

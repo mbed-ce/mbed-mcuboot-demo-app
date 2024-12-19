@@ -51,7 +51,7 @@ int main()
             // then mark the update as successful. Here we let the user press a button.
             tr_info("Press the button to confirm, or reboot to revert the update");
 
-            while (DEMO_BUTTON_IS_PRESSED)
+            while(!DEMO_BUTTON_IS_PRESSED)
             {
                 ThisThread::sleep_for(10ms);
             }
