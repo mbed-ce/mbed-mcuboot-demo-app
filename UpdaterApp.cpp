@@ -45,6 +45,17 @@ int main()
         tr_error("Cannot init secondary BlockDevice: %d", ret);
     }
 
+    tr_info(" ");
+    tr_info("mcuboot configuration: -----------------------------------");
+    tr_info("- Primary slot: start address 0x%x, size %ukiB", MCUBOOT_PRIMARY_SLOT_START_ADDR, MCUBOOT_SLOT_SIZE/1024);
+    tr_info("  - Header size: 0x%x", MCUBOOT_HEADER_SIZE);
+    tr_info("  - Max flash sectors per slot: %u", MCUBOOT_MAX_IMG_SECTORS);
+    tr_info("- Scratch area: start address 0x%x, size %ukiB", MCUBOOT_SCRATCH_START_ADDR, MCUBOOT_SCRATCH_SIZE/1024);
+    tr_info("- Secondary BD: size %" PRIu64 "kiB", secondary_bd->size()/1024);
+    tr_info("  - Program (block) size %" PRIu64 " bytes", secondary_bd->get_program_size());
+    tr_info("  - Erase (sector) size %" PRIu64 " bytes", secondary_bd->get_erase_size());
+    tr_info(" ");
+
     // Erase secondary slot
     // On the first boot, the secondary BlockDevice needs to be clean
     // If the first boot is not normal, please run the erase step, then reboot
@@ -88,6 +99,9 @@ int main()
     } else {
         tr_error("Cannot deinit secondary BlockDevice: %d", ret);
     }
+
+    // Give user time to react, as programming can be pretty fast
+    ThisThread::sleep_for(250ms);
 
     // Activate the image in the secondary BlockDevice
     tr_info("> Image copied to secondary BlockDevice, press button to activate");

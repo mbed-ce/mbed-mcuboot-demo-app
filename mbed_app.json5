@@ -10,11 +10,15 @@
             "macro_name": "DEMO_BUTTON_ACTIVE_LOW",
             "required": false
         },
+        "secondary-slot-in-flash": {
+            "help": "If enabled, store the secondary slot in the application flash immediately after the primary slot.",
+            "value": false
+        },
+        "secondary-slot-flash-start-addr": {
+            "help": "If secondary-slot-in-flash is enabled, this sets the start address of the secondary slot.",
+            "value": null
+        }
     },
-
-    "macros": [
-        "MBEDTLS_CIPHER_MODE_CTR"
-    ],
 
     "target_overrides": {
         "*": {
@@ -81,8 +85,36 @@
             "mcuboot.scratch-address": "0xE0000",
             "mcuboot.scratch-size": "0x20000",
 
-            "mcuboot.max-img-sectors": "0x180",
+            "mcuboot.max-img-sectors": "1536", // External SD card has smaller sector size, so divide slot size by read granularity
             "mcuboot.read-granularity": 512 // External SD card used as block device, this is its read size.
+        },
+
+        "MIMXRT1060_EVK": {
+            "target.memory_bank_config": {
+                "EXT_FLASH": {
+                    "start": 0x60021000, // mcuboot.primary-slot-address + mcuboot.header-size
+                    "size": 0x2FF000 // mcuboot.slot-size - mcuboot.header-size
+                }
+            },
+
+            // Primary slot is 3MiB and begins right after the bootloader
+            "mcuboot.primary-slot-address": "0x60020000",
+            "mcuboot.slot-size": "0x300000",
+
+            // Use flash for secondary slot as well
+            "secondary-slot-in-flash": true,
+            "secondary-slot-flash-start-addr": "0x60320000",
+
+            // Store the scratch space at the end of flash
+            "mcuboot.scratch-address": "0x60620000",
+            "mcuboot.scratch-size": "0x20000",
+
+            "mcuboot.read-granularity": 1, // Flash is byte addressable
+
+            "mcuboot.max-img-sectors": 768, // Maximum flash sectors per slot. 3MiB/4kiB = 768.
+            "mcuboot.flash-block-size": 256,
+
+            "demo-button-active-low": true
         }
-    }
+    },
 }

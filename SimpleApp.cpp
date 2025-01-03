@@ -26,7 +26,10 @@ int main()
     mbed_trace_include_filters_set("SimpleApp,MCUb,BL");
 
     DigitalIn btn(DEMO_BUTTON);
+
+#ifdef LED1
     DigitalOut led(LED1);
+#endif
 
     // Check if an update has been performed
     int swap_type = boot_swap_type();
@@ -81,6 +84,8 @@ int main()
     {
         ThisThread::sleep_for(1s);
         printf("Simple app is running...\n");
+
+#ifdef LED1
         led = 1;
         ThisThread::sleep_for(250ms);
         led = 0;
@@ -88,5 +93,6 @@ int main()
         led = 1;
         ThisThread::sleep_for(250ms);
         led = 0;
+#endif
     }
 }
