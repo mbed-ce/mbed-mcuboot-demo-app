@@ -91,7 +91,12 @@ int main()
     }
 
     // Copy the update image from internal flash to secondary BlockDevice
-    secondary_bd->program(&_binary_SimpleApp_update_image_bin_start, 0, SimpleApp_update_image_bin_length);
+    ret = secondary_bd->program(&_binary_SimpleApp_update_image_bin_start, 0, SimpleApp_update_image_bin_length);
+    if (ret == 0) {
+        tr_info("Image copied.");
+    } else {
+        tr_error("Cannot copy image: %d", ret);
+    }
 
     ret = secondary_bd->deinit();
     if (ret == 0) {
