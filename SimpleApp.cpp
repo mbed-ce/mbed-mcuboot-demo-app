@@ -63,7 +63,6 @@ int main()
             if (ret == 0)
             {
                 tr_info("Current firmware set as confirmed");
-                return 0;
             }
             else
             {
