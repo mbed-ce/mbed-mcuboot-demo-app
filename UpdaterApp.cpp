@@ -52,7 +52,7 @@ int main()
     tr_info("  - Max flash sectors per slot: %u", MCUBOOT_MAX_IMG_SECTORS);
     tr_info("- Scratch area: start address 0x%x, size %ukiB", MCUBOOT_SCRATCH_START_ADDR, MCUBOOT_SCRATCH_SIZE/1024);
     tr_info("- Secondary BD: size %" PRIu64 "kiB", secondary_bd->size()/1024);
-    tr_info("  - Program (block) size %" PRIu64 " bytes", secondary_bd->get_program_size());
+    tr_info("  - Program (page) size %" PRIu64 " bytes", secondary_bd->get_program_size());
     tr_info("  - Erase (sector) size %" PRIu64 " bytes", secondary_bd->get_erase_size());
     tr_info(" ");
 

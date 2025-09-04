@@ -3,15 +3,17 @@ cmake_policy(VERSION 3.19)
 
 set(MBED_APP_JSON_PATH mbed_app.json5)
 
-include(mbed-os/tools/cmake/app.cmake)
+include(mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
+
+project(mbed-mcuboot-demo-app VERSION 1.0.0)
+
+include(mbed_project_setup)
 
 # Make sure that the build system generates both bin and hex files, regardless of
 # target settings.
 set(MBED_OUTPUT_EXT "" CACHE STRING "" FORCE)
 
 add_subdirectory(mbed-os)
-
-project(mbed-mcuboot-demo-app VERSION 1.0.0)
 
 # Compile mcuboot sources
 add_subdirectory(mcuboot/boot/bootutil)
@@ -27,7 +29,7 @@ mcuboot_generate_update_image(SimpleApp)
 
 add_executable(UpdaterApp UpdaterApp.cpp secondary_bd.cpp)
 target_link_libraries(UpdaterApp
-	mbed-os
+	mbed-baremetal
 	mbed-storage
 	mbed-mcuboot)
 mbed_set_post_build(UpdaterApp)
@@ -40,5 +42,3 @@ mcuboot_generate_update_image(UpdaterApp)
 # See here for more details on this: https://gareus.org/wiki/embedding_resources_in_executables
 target_link_options(UpdaterApp PRIVATE -Wl,-b,binary,SimpleApp-update-image.bin -Wl,-b,elf32-littlearm)
 add_dependencies(UpdaterApp SimpleApp) # Ensure SimpleApp gets built before UpdaterApp
-
-mbed_finalize_build()
