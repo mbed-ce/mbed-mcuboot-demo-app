@@ -14,6 +14,8 @@ jobs:
         mbed_target: 
           # Change the below to match the target(s) you want to compile the project for.
           - K64F
+          - MIMXRT1060_EVK
+          - NUCLEO_H743ZI2
     
     steps:
       - name: Checkout
@@ -36,5 +38,5 @@ jobs:
       - name: Build project for ${{ matrix.mbed_target }}
         run: |
             mkdir build && cd build
-            cmake .. -GNinja -DMBED_TARGET=${{ matrix.mbed_target }} -DMCUBOOT_SIGNING_KEY=signing-keys.pem
+            cmake .. -GNinja -DMBED_TARGET=${{ matrix.mbed_target }} -DUPLOAD_METHOD=NONE -DMCUBOOT_SIGNING_KEY=signing-keys.pem
             ninja
